@@ -1,19 +1,20 @@
 #include <stdio.h>
+#include <time.h>
 #include <pthread.h>
 
 #include "helper.h"
 #include "memory.h"
+#include "threads.h"
 
-void *print_string(void *arg) {
-    char *str = (char*) arg;
-
-    printf("Thread : %s\n", str);
-    return (void *) str;
-}
-
+pthread_mutex_t lock;
 
 int main() {
-    int seed = time(NULL);
+    srand(time(NULL));
+
+    if (pthread_mutex_init(&lock, NULL) != 0) {
+        printf("Mutex failed to initialize");
+        return EXIT_FAILURE;
+    }
 
     Configuration config;
 
@@ -21,23 +22,28 @@ int main() {
     print_config(config);
 
     Queue* q = create_queue(config.frames);
-    // Hash* virtual_mem = create_hash(config.frames);
-
     Hash* h = create_hash(config.nb_page_secondary);
 
-    int test[20] = {1, 2, 3, 1, 1,7,6,5,8,7,10, 3, 3, 4, 5, 6};
+    MemoryContext* context = (MemoryContext*) malloc(sizeof(MemoryContext));
 
-    for (int i = 0; i < 15; i++) {
-        reference_page_lru(q,h, test[i]);
-        print_queue(q);
-    }
+    context->config = config;
+    context->queue = q;
+    context->memory_hash = h;
 
+    pthread_t* tids = create_tid_array(config.nb_threads);
 
+    start_all_threads(tids, context);
+    int *stats = join_all_threads(tids, context);
 
+    print_stats(config, stats);
+
+    free(context);
     free_queue(q);
     free_hash(h);
+    free(stats);
+    free_tid_array(tids);
 
-    // pthread_t tid;
-    // pthread_create(&tid, NULL, print_string, "Bonjour");
-    // pthread_join(tid,);
+    pthread_mutex_destroy(&lock);
+
+    return EXIT_SUCCESS;
 }

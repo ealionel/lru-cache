@@ -1,4 +1,6 @@
+#include <pthread.h>
 #include "memory.h"
+#include "threads.h"
 
 #define CACHE_HIT 1
 #define CACHE_MISS 0
@@ -126,14 +128,14 @@ Page* enqueue(Queue* queue, Hash* hash, unsigned int page_number) {
     return new_page;
 }
 
-// Retourne CACHE_HIT si la page page_number est dans la mémoire principale
-// Sinon retourne CACHE_MISS
-int in_main_memory(Queue* q, Hash* h, unsigned int page_number) {
+int page_in_main_memory(Queue* q, Hash* h, unsigned int page_number) {
     return h->array[page_number] != NULL ? CACHE_HIT : CACHE_MISS;
 }
 
 int reference_page_lru(Queue* queue, Hash* hash, unsigned int page_number) {
     Page* page_requested = hash->array[page_number];
+
+    pthread_mutex_lock(&lock);
 
     if (page_requested == NULL) {
         // Si la page n'a pas été trouvée dans la queue, on l'ajoute au début
@@ -168,13 +170,14 @@ int reference_page_lru(Queue* queue, Hash* hash, unsigned int page_number) {
         queue->front = page_requested;
     }
 
+    pthread_mutex_unlock(&lock);
+
     return page_requested->virtual_page_number;
 }
 
-int reference_address(Queue* queue, Hash* hash, unsigned int physical_address,
-                      unsigned int frame_size) {
-    int virtual_page = reference_page_lru(queue, hash,
-                       get_page(physical_address, frame_size));
+int reference_address(Queue* queue, Hash* hash, unsigned int physical_address, unsigned int frame_size) {
+    // printf("Requested : %d\n", physical_address);
+    int virtual_page = reference_page_lru(queue, hash, get_page(physical_address, frame_size));
 
 
     // Translation vers l'adresse logique

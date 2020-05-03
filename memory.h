@@ -47,6 +47,10 @@ void dequeue(Queue* queue);
 // Ajoute une page au début de la queue et retourne un pointeur vers cette page
 Page* enqueue(Queue* queue, Hash* hash, unsigned int page_number);
 
+// Retourne CACHE_HIT si la page page_number est dans la mémoire principale
+// Sinon retourne CACHE_MISS
+int page_in_main_memory(Queue* q, Hash* h, unsigned int page_number);
+
 // Permet de faire une demande de mémoire par rapport à une page physique
 int reference_page_lru(Queue* queue, Hash* hash, unsigned int page_number);
 

@@ -1,8 +1,7 @@
 #ifndef H_CONFIG
 #define H_CONFIG
 
-#include <stdio.h>
-
+#include "memory.h"
 
 typedef struct Configuration {
     int frames; // Nombre de frame disponible dans la mémoire principale
@@ -12,9 +11,15 @@ typedef struct Configuration {
     int nb_access; // Nombre d'accès demandés par thread
 } Configuration;
 
+typedef struct MemoryContext {
+    Configuration config;
+    Hash* memory_hash;
+    Queue* queue;
+} MemoryContext;
+
 void print_config(Configuration config);
 void read_config(Configuration *config);
-
-void random_address(int max);
+void print_stats(Configuration config, int *stats);
+unsigned int random_address(unsigned int max);
 
 #endif
