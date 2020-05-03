@@ -15,9 +15,11 @@ void* query_address(void* _context) {
         int rand_address = random_address((context->config.nb_page_secondary) *
                                           context->config.page_size);
 
-        if (page_in_main_memory(
-                context->queue, context->memory_hash,
-                get_page(rand_address, context->config.page_size))) {
+        int in_memory = page_in_main_memory(
+            context->queue, context->memory_hash,
+            get_page(rand_address, context->config.page_size));
+
+        if (in_memory) {
             // Si cette mémoire se trouve dans la mémoire principale on augmente
             // notre compteur
             (*nb_hits)++;
@@ -26,6 +28,10 @@ void* query_address(void* _context) {
         // On fait une demande d'adresse physique à notre Queue
         reference_address(context->queue, context->memory_hash, rand_address,
                           context->config.page_size);
+
+        // printf("\n[%d] %s %d:\t", i, in_memory ? "Y" : "N", get_page(rand_address, context->config.page_size));
+        // print_queue(context->queue);
+        // print_queue("cocou");
     }
 
     return nb_hits;

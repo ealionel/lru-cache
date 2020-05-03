@@ -142,13 +142,15 @@ int reference_page_lru(Queue* queue, Hash* hash, unsigned int page_number) {
         page_requested = enqueue(queue, hash, page_number);
 
     } else if (queue->front != page_requested) {
-        // Si la page a été trouvée dans la queue, et qu'elle ne possède pas
-        // qu'un unique élément on la remet au début tout en faisant attention à
+        // Si la page a été trouvée dans la queue, et qu'elle ne se situe pas déjà
+        // en première position, on la remet au début tout en faisant attention à
         // bien modifier tous les liens de la liste chainée
 
-        // if (queue->front == page_requested->left) {
-        //     queue->front->left = page_requested;
-        // }
+        if (page_requested->left == NULL) {
+            printf("NULL LEFT POINTER BUG\n");
+            pthread_mutex_unlock(&lock);
+            return 0;
+        }
 
         page_requested->left->right = page_requested->right;
 

@@ -6,15 +6,15 @@
 #include "memory.h"
 #include "threads.h"
 
-pthread_mutex_t lock;
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 int main() {
     srand(time(NULL));
 
-    if (pthread_mutex_init(&lock, NULL) != 0) {
-        printf("Mutex failed to initialize");
-        return EXIT_FAILURE;
-    }
+    // if (pthread_mutex_init(&lock, NULL) != 0) {
+    //     printf("Mutex failed to initialize");
+    //     return EXIT_FAILURE;
+    // }
 
     Configuration config;
 
