@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 void print_config(Configuration config) {
     printf("---------- Config -----------\n");
     printf("frames:\t\t\t%d\n", config.frames);
@@ -22,21 +21,21 @@ void read_config(Configuration *config) {
     scanf("%d", &config->nb_access);
 }
 
-unsigned int random_address(unsigned int max) {
-    return rand() % max;
-}
+unsigned int random_address(unsigned int max) { return rand() % max; }
 
 void print_stats(Configuration config, int *stats) {
     int total_hit = 0;
     int total_requests = config.nb_access * config.nb_threads;
+
     for (int i = 0; i < config.nb_threads; i++) {
-        printf("Thread[%d] :\t%d / %d hits\n", i+1, stats[i], config.nb_access);
+        float thread_hit_rate = (float)stats[i] / (float)config.nb_access;
+        printf("Thread[%d] :\t%d / %d hits\t%.2f%%\n", i + 1, stats[i], config.nb_access, thread_hit_rate * 100);
         total_hit += stats[i];
     }
     printf("-----------------------------\n");
 
-    float hit_rate = (float) total_hit / (float) total_requests;
+    float hit_rate = (float)total_hit / (float)total_requests;
 
     printf("Total :\t\t%d / %d hits\n", total_hit, total_requests);
-    printf("Hit Rate :\t%.2f%%\n", hit_rate*100);
+    printf("Hit Rate :\t%.2f%%\n", hit_rate * 100);
 }

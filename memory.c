@@ -1,12 +1,12 @@
-#include <pthread.h>
 #include "memory.h"
 #include "threads.h"
+#include <pthread.h>
 
 #define CACHE_HIT 1
 #define CACHE_MISS 0
 
-Page* create_page(int page_number) {
-    Page* node = (Page*)malloc(sizeof(Page));
+Page *create_page(int page_number) {
+    Page *node = (Page *)malloc(sizeof(Page));
 
     node->page_number = page_number;
     node->left = NULL;
@@ -15,15 +15,13 @@ Page* create_page(int page_number) {
     return node;
 }
 
-Queue* create_queue(int max_frames) {
-    Queue* queue = (Queue*)malloc(sizeof(Queue));
+Queue *create_queue(int max_frames) {
+    Queue *queue = (Queue *)malloc(sizeof(Queue));
 
     queue->front = NULL;
     queue->back = NULL;
     queue->max_frames = max_frames;
     queue->count = 0;
-
-    // queue->frames = create_hash(max_frames);
 
     return queue;
 }
@@ -31,11 +29,11 @@ Queue* create_queue(int max_frames) {
 // Le hash permet de vérifier en une seule opération si une page est présente
 // dans la mémoire principale ou pas, sa valeur de hashage correspond au numéro
 // de page dans la mémoire physique
-Hash* create_hash(int capacity) {
-    Hash* hash = (Hash*)malloc(sizeof(Hash));
+Hash *create_hash(int capacity) {
+    Hash *hash = (Hash *)malloc(sizeof(Hash));
     hash->capacity = capacity;
 
-    hash->array = (Page**)malloc(sizeof(Page*) * capacity);
+    hash->array = (Page **)malloc(sizeof(Page *) * capacity);
 
     for (int i = 0; i < capacity; i++) {
         hash->array[i] = NULL;
@@ -44,29 +42,27 @@ Hash* create_hash(int capacity) {
     return hash;
 }
 
-void free_hash(Hash* hash) {
+void free_hash(Hash *hash) {
     free(hash->array);
     free(hash);
 }
 
-void free_queue(Queue* queue) {
-    Page* it = queue->front;
+void free_queue(Queue *queue) {
+    Page *it = queue->front;
     while (it != NULL) {
-        Page* next;
+        Page *next;
         next = it->right;
         free(it);
         it = next;
     }
-
-    // free(queue->frames);
 }
 
-int is_queue_full(Queue* queue) { return queue->count == queue->max_frames; }
+int is_queue_full(Queue *queue) { return queue->count == queue->max_frames; }
 
-int is_queue_empty(Queue* queue) { return queue->back == NULL; }
+int is_queue_empty(Queue *queue) { return queue->back == NULL; }
 
 // Retire une frame de la queue
-void dequeue(Queue* queue) {
+void dequeue(Queue *queue) {
     if (is_queue_empty(queue)) {
         // Si elle est vide on a rien à retirer
         return;
@@ -77,7 +73,7 @@ void dequeue(Queue* queue) {
         queue->front = NULL;
     }
 
-    Page* tmp = queue->back;
+    Page *tmp = queue->back;
 
     queue->back = queue->back->left;
 
@@ -86,11 +82,11 @@ void dequeue(Queue* queue) {
     }
 
     free(tmp);
-    queue->count -= 1;
+    queue->count--;
 }
 
-Page* enqueue(Queue* queue, Hash* hash, unsigned int page_number) {
-    Page* new_page = create_page(page_number);
+Page *enqueue(Queue *queue, Hash *hash, unsigned int page_number) {
+    Page *new_page = create_page(page_number);
 
     if (is_queue_full(queue)) {
         // La nouvelle page récupère l'adresse virtuelle de celle qui est
@@ -128,14 +124,14 @@ Page* enqueue(Queue* queue, Hash* hash, unsigned int page_number) {
     return new_page;
 }
 
-int page_in_main_memory(Queue* q, Hash* h, unsigned int page_number) {
+int page_in_main_memory(Queue *q, Hash *h, unsigned int page_number) {
+    // Si la page contient bien une référence dans l'array du hash alors c'est qu'il y est
+    // Cet array représente les pages contenues dans la mémoire principale
     return h->array[page_number] != NULL ? CACHE_HIT : CACHE_MISS;
 }
 
-int reference_page_lru(Queue* queue, Hash* hash, unsigned int page_number) {
-    Page* page_requested = hash->array[page_number];
-
-    pthread_mutex_lock(&lock);
+int reference_page_lru(Queue *queue, Hash *hash, unsigned int page_number) {
+    Page *page_requested = hash->array[page_number];
 
     if (page_requested == NULL) {
         // Si la page n'a pas été trouvée dans la queue, on l'ajoute au début
@@ -145,12 +141,6 @@ int reference_page_lru(Queue* queue, Hash* hash, unsigned int page_number) {
         // Si la page a été trouvée dans la queue, et qu'elle ne se situe pas déjà
         // en première position, on la remet au début tout en faisant attention à
         // bien modifier tous les liens de la liste chainée
-
-        if (page_requested->left == NULL) {
-            printf("NULL LEFT POINTER BUG\n");
-            pthread_mutex_unlock(&lock);
-            return 0;
-        }
 
         page_requested->left->right = page_requested->right;
 
@@ -172,28 +162,30 @@ int reference_page_lru(Queue* queue, Hash* hash, unsigned int page_number) {
         queue->front = page_requested;
     }
 
-    pthread_mutex_unlock(&lock);
-
     return page_requested->virtual_page_number;
 }
 
-int reference_address(Queue* queue, Hash* hash, unsigned int physical_address, unsigned int frame_size) {
-    // printf("Requested : %d\n", physical_address);
+int reference_address(Queue *queue, Hash *hash, unsigned int physical_address, unsigned int frame_size) {
+
+    // On empêche que plusieurs threads référencent une autre page en même temps
+    pthread_mutex_lock(&lock);
+
     int virtual_page = reference_page_lru(queue, hash, get_page(physical_address, frame_size));
 
+    pthread_mutex_unlock(&lock);
 
     // Translation vers l'adresse logique
     // en gros : page_i * framesize + @physique % framesize
     return get_page(virtual_page, frame_size) + get_offset(physical_address, frame_size);
 }
 
-void print_queue(Queue* queue) {
+void print_queue(Queue *queue) {
     if (is_queue_empty(queue)) {
         printf("Empty queue\n");
         return;
     }
 
-    Page* it = queue->front;
+    Page *it = queue->front;
 
     while (it != NULL) {
         printf("%d ", it->page_number);
@@ -202,8 +194,6 @@ void print_queue(Queue* queue) {
     printf("\n");
 }
 
-int get_page(int address, int frame_size) {
-    return address / frame_size;
-}
+int get_page(int address, int frame_size) { return address / frame_size; }
 
 int get_offset(int address, int frame_size) { return address % frame_size; }
