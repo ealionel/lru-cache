@@ -1,4 +1,4 @@
-# Gestion de la mémoire
+# TD Gestion de la mémoire
 
 ## Compilation
 
@@ -35,6 +35,11 @@ Ou alors en rentrant manuellement la condfiguration dans le bon ordre dans l'ent
 
 ```
 ./build/program
+4
+4096
+256
+10
+100
 ```
 
 ## Exemple
@@ -43,23 +48,23 @@ Un exemple de sortie du programme :
 
 ```
 ---------- Config -----------
-frames:			    10
-page_size:		    4096
-nb_page_secondary:	256
-nb_threads:		    10
-nb_access:		    10
+frames:             10
+page_size:          4096
+nb_page_secondary:  256
+nb_threads:         10
+nb_access:          10
 -----------------------------
-Thread[1] :	    5 / 100 hits
-Thread[2] :	    2 / 100 hits
-Thread[3] :	    2 / 100 hits
-Thread[4] :	    1 / 100 hits
-Thread[5] :	    3 / 100 hits
-Thread[6] :	    5 / 100 hits
-Thread[7] :	    2 / 100 hits
-Thread[8] :	    5 / 100 hits
-Thread[9] :	    5 / 100 hits
-Thread[10] :	1 / 100 hits
+Thread[1] :     5 / 100 hits
+Thread[2] :     2 / 100 hits
+Thread[3] :     2 / 100 hits
+Thread[4] :     1 / 100 hits
+Thread[5] :     3 / 100 hits
+Thread[6] :     5 / 100 hits
+Thread[7] :     2 / 100 hits
+Thread[8] :     5 / 100 hits
+Thread[9] :     5 / 100 hits
+Thread[10]:     1 / 100 hits
 -----------------------------
-Total :		31 / 1000 hits
-Hit Rate :	3.10%
+Total :     31 / 1000 hits
+Hit Rate :  3.10%
 ```
