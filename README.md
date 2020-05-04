@@ -52,7 +52,7 @@ frames:             10
 page_size:          4096
 nb_page_secondary:  256
 nb_threads:         10
-nb_access:          10
+nb_access:          100
 -----------------------------
 Thread[1] :     5 / 100 hits
 Thread[2] :     2 / 100 hits
