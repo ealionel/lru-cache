@@ -176,7 +176,7 @@ int reference_address(Queue *queue, Hash *hash, unsigned int physical_address, u
 
     // Translation vers l'adresse logique
     // en gros : page_i * framesize + @physique % framesize
-    return get_page(virtual_page, frame_size) + get_offset(physical_address, frame_size);
+    return (virtual_page * frame_size) + get_offset(physical_address, frame_size);
 }
 
 void print_queue(Queue *queue) {
