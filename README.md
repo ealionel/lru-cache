@@ -1,4 +1,6 @@
-# TD Gestion de la mémoire
+# Gestion de la mémoire
+
+Exemple d'implémentation de l'algorithme LRU permettant de de remplacer des lignes de cache.
 
 ## Compilation
 
