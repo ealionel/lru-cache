@@ -1,39 +1,37 @@
-# Gestion de la mémoire
+# LRU Cache
 
-Exemple d'implémentation de l'algorithme LRU permettant de de remplacer des lignes de cache.
+This repository is an example of implementation of LRU policy cache memory replacement in an operating system.
 
-## Compilation
+## Building
 
-Le programme est compilé de la manière suivante :
 ```
 mkdir build
 gcc -g -Wall main.c memory.c helper.c threads.c -o build/program -lpthread
 ```
 
-## Fichier de configuration
+## Configuration file
 
-Le fichier de configuration doit avoir les champs suivants :
+Configuration file must have the following format :
 
 ```
-<nb_pages_memoire_principale> <taille_page> <nb_pages_memoire_secondaire> <nb_threads_fils> <nb_accès>
+<nb_pages_in_main_memory> <size_of_page> <nb_pages_in_secondary_memory> <nb_child_threads> <amount_of_memory_access>
 ```
 
-Donc par exemple
+For example :
 
 ```
 4 4096 256 10 100
 ```
 
-## Utilisation
+## Usage
 
-
-La configuration fait simplement des scanf sur l'entrée standard, c'est pourquoi, après avoir compilé le programme, on peut lancer le programme depuis la racine avec le fichier de configuration `config` de la manière suivante :
+Program reads configuration via standard input. You can input your configuration file by doing the following :
 
 ```
 ./build/program < config
 ```
 
-Ou alors en rentrant manuellement la condfiguration dans le bon ordre dans l'entrée standard :
+Or just via the console in stdin when running the program :
 
 ```
 ./build/program
@@ -44,9 +42,8 @@ Ou alors en rentrant manuellement la condfiguration dans le bon ordre dans l'ent
 100
 ```
 
-## Exemple
+## Output example
 
-Un exemple de sortie du programme :
 
 ```
 ---------- Config -----------
